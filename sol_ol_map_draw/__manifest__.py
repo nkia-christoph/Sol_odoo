@@ -7,7 +7,7 @@
         base module for showing entities in open street map, draw and geocoding,
     """,
     "category": "Web",
-    'author': "0Solver and Sliven0",
+    'author': "0Solver0",
     'version': '0.1',
     'depends': ['web','base_geolocalize'],
     'data': [
