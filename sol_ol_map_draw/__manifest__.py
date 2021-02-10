@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 {
-    'name': "base module for showing entities in open street map, draw and geocoding",
+    'name': "base module for Geo, Locate and Draw into map for odoo addons",
 
     'summary': "base module for showing entities in open street map, draw and geocoding",
     'description': """
-        base module for showing entities in open street map, draw and geocoding
+        base module for showing entities in open street map, draw and geocoding,
     """,
     "category": "Web",
     'author': "0Solver and Sliven0",
