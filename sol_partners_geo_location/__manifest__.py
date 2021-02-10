@@ -9,7 +9,7 @@
     "category": "Web",
     'author': "0Solver0",
     'version': '0.1',
-    'depends': ['solver_traccars_integration'],
+    'depends': ['sol_ol_map_draw'],
     'data': [
          "views/data.xml"
     ],
