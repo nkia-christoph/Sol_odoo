@@ -4,7 +4,7 @@
 
     'summary': "Sol map test res partner ",
     'description': """
-        Sol map test res partner
+        Sol map test for res partner
     """,
     "category": "Web",
     'author': "0Solver0",
