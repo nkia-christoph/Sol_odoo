@@ -13,7 +13,8 @@
     'data': [
          "views/assets.xml",
          "views/data.xml",
-         "data/data_data.xml"
+         "data/data_data.xml",
+         'security/ir.model.access.csv',
     ],
     'images': ['sol_ol_map_draw/static/description/thumbnails.png'],
     'qweb': ['static/src/xml/solmaptemplate.xml','static/src/xml/solmapform.xml'],

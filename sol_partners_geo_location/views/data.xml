@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <record model="ir.actions.act_window" id="contacts.action_contacts">
-            <field name="name">res.partnerSolMap</field>
+            <field name="name">Partners</field>
             <field name="res_model">res.partner</field>
             <field name="view_mode">kanban,tree,form,activity,solmap</field>
     </record>
