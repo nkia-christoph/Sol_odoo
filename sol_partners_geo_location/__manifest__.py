@@ -13,7 +13,7 @@
     'data': [
          "views/data.xml"
     ],
-    'images': ['static/description/thumbnails.png'],
+    'images': ['static/description/thumbnails_screenshot.png','static/description/icon.png'],
     'installable': True,
     'auto_install': False
 }
