@@ -13,7 +13,7 @@
     'data': [
          "views/data.xml"
     ],
-    'images': ['static/description/icon.png'],
+    'images': ['sol_partners_geo_location/static/description/thumbnails.png'],
     'installable': True,
     'auto_install': False
 }
