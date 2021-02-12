@@ -9,6 +9,9 @@
     "category": "Web",
     'author': "0Solver0",
     'version': '0.1',
+    'license': 'LGPL-3',
+    'price': '100',
+    'currency': '$',
     'depends': ['web','base_geolocalize'],
     'data': [
          "views/assets.xml",
@@ -16,7 +19,7 @@
          "data/data_data.xml",
          'security/ir.model.access.csv',
     ],
-    'images': ['sol_ol_map_draw/static/description/thumbnails.png'],
+    'images': ['static/description/thumbnails_screenshot.png','static/description/icon.png'],
     'qweb': ['static/src/xml/solmaptemplate.xml','static/src/xml/solmapform.xml'],
     'installable': True,
     'uninstall_hook': 'uninstall_hook',

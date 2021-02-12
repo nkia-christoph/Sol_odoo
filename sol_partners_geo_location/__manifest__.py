@@ -4,7 +4,7 @@
 
     'summary': "Sol map test res partner ",
     'description': """
-        Sol map test res partner
+        Sol map test for res partner
     """,
     "category": "Web",
     'author': "0Solver0",
@@ -13,7 +13,7 @@
     'data': [
          "views/data.xml"
     ],
-    'images': ['sol_partners_geo_location/static/description/thumbnails.png'],
+    'images': ['static/description/thumbnails_screenshot.png','static/description/icon.png'],
     'installable': True,
     'auto_install': False
 }
