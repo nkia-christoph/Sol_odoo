@@ -2,7 +2,7 @@
 {
     'name': "Geo, locate, draw into map case Partners Addon",
 
-    'summary': "Sol map test res partner ",
+    'summary': "Sol map test res partner. ",
     'description': """
         Sol map test for res partner
     """,

@@ -11,7 +11,7 @@
     'version': '0.1',
     'license': 'LGPL-3',
     'price': '100',
-    'currency': '$',
+    'currency': 'USD',
     'depends': ['web','base_geolocalize'],
     'data': [
          "views/assets.xml",
