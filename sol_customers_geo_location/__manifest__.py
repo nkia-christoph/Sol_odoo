@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 {
-    'name': "Geo, locate, draw into map case Partners Addon",
+    'name': "Geo, locate, draw into map case Customer",
 
-    'summary': "Sol map test res partner. ",
+    'summary': "Sol map customer. ",
     'description': """
-        Sol map test for res partner
+        Sol map test for customer
     """,
-    "category": "Web",
+    "category": "sale",
     'author': "0Solver0",
     'license': 'LGPL-3',
     'version': '0.1',
-    'depends': ['sol_ol_map_draw','contacts','base_geolocalize'],
+    'depends': ['sol_ol_map_draw','sale_management','base_geolocalize'],
     'data': [
          "views/data.xml"
     ],
