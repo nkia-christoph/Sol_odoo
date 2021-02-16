@@ -14,5 +14,5 @@ class SolMapManageOverlay(models.Model):
 
     name = fields.Char('Overlay name', translate=True, required=True)
     model_name = fields.Char('Model Name', translate=True, required=True)
-    overlay_template = fields.Text('Overlay Template', translate=True, required=True)
+    overlay_template = fields.Text('Overlay Template', required=True)
     is_default = fields.Boolean(string="Default", default=False, translate=True)

@@ -58,6 +58,14 @@ var MapFormWidget = AbstractField.extend(solmap_common.SolMapMixin,{
             self._createEditFeaturesControl();
             self.$(".startDraw").click(self._OnStartDraw.bind(self));
             $_geCodeButton.click(self._on_geCodeButtonClick.bind(self));
+
+            if (this.nodeOptions.geocode_btn){
+                if(parseInt(this.nodeOptions.geocode_btn) ===0){
+                    console.log("disabled",this.nodeOptions.geocode_btn);
+                    $_geCodeButton.attr("disabled","disabled");
+                    $_geCodeButton.hide();
+                }
+            }
         }else{
             $_geCodeButton.attr("disabled","disabled");
             $_geCodeButton.hide();
@@ -232,6 +240,7 @@ var MapFormWidget = AbstractField.extend(solmap_common.SolMapMixin,{
 
     _renderDraggableMarker : function(){
         var self = this;
+
         var _longitude = this.recordData[this.nodeOptions.longitude];
         var _latitude = this.recordData[this.nodeOptions.latitude];
         if(this.recordData[this.nodeOptions.longitude] === 0.0
@@ -275,6 +284,13 @@ var MapFormWidget = AbstractField.extend(solmap_common.SolMapMixin,{
     },
 
     _on_geCodeButtonClick: function(){
+        console.log('geocode_btn',this.nodeOptions.geocode_btn);
+        if (this.nodeOptions.geocode_btn){
+            if(parseInt(this.nodeOptions.geocode_btn) === 0 ){
+                console.log(' return geocode_btn', this.nodeOptions.geocode_btn);
+                return;
+            }
+        }
         var self = this;
         var street,zip,city,state,country ='';
         street = this.recordData[this.nodeOptions.street];
@@ -622,4 +638,3 @@ field_registry.add("solMapForm", MapFormWidget);
 return MapFormWidget;
 
 });
-

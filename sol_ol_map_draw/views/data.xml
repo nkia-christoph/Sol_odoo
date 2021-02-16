@@ -7,7 +7,7 @@
             <tree string="Overlay">
                 <field name="name"/>
                 <field name="model_name"/>
-                <field name="overlay_template" widget="ace" options="{'mode': 'xml'}"/>
+                <!--<field name="overlay_template" widget="ace" options="{'mode': 'xml'}"/>-->
                 <field name="is_default"/>
             </tree>
         </field>

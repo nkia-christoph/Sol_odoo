@@ -1,21 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <record model="ir.actions.act_window" id="contacts.action_contacts">
-            <field name="name">Partners</field>
-            <field name="res_model">res.partner</field>
-            <field name="view_mode">kanban,tree,form,activity,solmap</field>
-    </record>
-    <record model="ir.ui.view" id="sol_map_partner_integration">
+    <record model="ir.ui.view" id="sol_map_partner_integration_view">
         <field name="model">res.partner</field>
         <field name="mode">primary</field>
+        <field name="sequence">17</field>
         <field name="arch" type="xml">
-            <solmap longitude="partner_longitude" latitude="partner_latitude">
+            <solmap longitude="partner_longitude" latitude="partner_latitude" geofield="map_form">
                 <field name="image"/>
                 <field name="name"/>
-                <field name="invoice_ids" projection="id,name,display_name,code_rapport"/>
+                <field name="partner_longitude"/>
+                <field name="partner_latitude"/>
+                <field name="map_form"/>
+                <!--<field name="invoice_ids" projection="id,name,display_name,code_rapport"/>
                 <field name="total_invoiced" widget='monetary'/>
                 <field name="sale_order_ids" projection="id,name,display_name"/>
-                <field name="sale_order_count" />
+                <field name="sale_order_count" />-->
             </solmap>
         </field>
     </record>
@@ -40,11 +39,22 @@
                             'city': 'city',
                             'state': 'state_id',
                             'country': 'country_id',
-                            'geocode_btn' : '0'
+                            'geocode_btn' : '1'
                             }">
                     </field>
                 </page>
             </xpath>
         </field>
+    </record>
+
+    <record model="ir.actions.act_window" id="contacts.action_contacts">
+            <field name="view_mode">kanban,tree,form,activity,solmap</field>
+    </record>
+
+    <record id="action_sol_map_partner_integration" model="ir.actions.act_window.view">
+        <field eval="3" name="sequence"/>
+        <field name="view_mode">solmap</field>
+        <field name="view_id" ref="sol_map_partner_integration_view"/>
+        <field name="act_window_id" ref="contacts.action_contacts"/>
     </record>
 </odoo>

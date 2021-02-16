@@ -5,6 +5,12 @@ var AbstractController = require('web.BasicController');
 var AbstractModel = require('web.BasicModel');
 var AbstractRenderer = require('web.BasicRenderer');
 var AbstractView = require('web.AbstractView');
+
+var BasicView = require('web.BasicView');
+var BasicController = require('web.BasicController');
+var BasicModel = require('web.BasicModel');
+var BasicRenderer = require('web.BasicRenderer');
+
 var viewRegistry = require('web.view_registry');
 var solmap_common = require('sol_ol_map_draw.solmap_common');
 var core = require("web.core");
@@ -14,15 +20,16 @@ var session = require('web.session');
 var field_utils = require('web.field_utils');
 var rpc = require('web.rpc');
 
-var SolverMapController = AbstractController.extend({});
+var SolverMapController = BasicController.extend({});
 
-var SolverMapRenderer = AbstractRenderer.extend({
+var SolverMapRenderer = BasicRenderer.extend({
     className: "o_sol_map_ol_view",
 
     init: function (parent, state, params) {
         this._super.apply(this, arguments);
         this.longitude=params.longitude;
         this.latitude=params.latitude;
+        this.geofield= params.geofield;
         this.mapTemplate = params.mapTemplate;
         this.viewInfo = params.viewInfo;
         this.viewFieldsChildrenAttrs = params.arch.children;
@@ -35,6 +42,8 @@ var SolverMapRenderer = AbstractRenderer.extend({
         this.overlayContent={};
         console.log('init');
         this._getFieldAttesArray();
+        this.isInDOM=false;
+        //console.log('this.state.data',this.state);
     },
 
      _getFieldAttesArray: function(){
@@ -47,10 +56,12 @@ var SolverMapRenderer = AbstractRenderer.extend({
     },
 
     _getRelationalFieldProjection: function(name){
+
         return this.viewAttrsArray[name];
     },
 
     _getKeys: function(object){
+
         return Object.keys(object);
     },
 
@@ -73,47 +84,88 @@ var SolverMapRenderer = AbstractRenderer.extend({
 
     updateState: function (state, params) {
         this._super.apply(this, arguments);
-       console.log('updateState');
+        if(this.map){
+            this._renderMarkers();
+        }
         return $.when();
     },
 
     on_attach_callback: function () {
-        this.isInDOM = true;
-        var self = this;
-        var def = this._super();
-        setTimeout(function(){
-            var map = self._renderMap();
-            if (map){
+        console.log(' on_attach_callback init view');
+        if (this.isInDOM) {
+            console.log('call',this.isInDOM);
+            var self = this;
+            this._renderMap();
+            if(this.map){
+                this._renderMarkers();
+                this._renderPopupOverlay();
+                if(this.geofield){
+                    console.log('this.geofield',this.geofield);
+                    this._createSearchControl();
+                }
+                this._loadOverlayContentTemplate(this.state.model,function(data){
+                    self.overlayContent = data;
+                });
+            }
+          /*  this._renderMarkers();
+            this._renderPopupOverlay();
+            this._createSearchControl();
+            */
+        }
+
+        /*setTimeout(function(){
+
+            //console.log(' self._renderMap();', map);
+            if (self.map){
+                console.log('map true');
                 self._renderMarkers();
                 self._renderPopupOverlay();
                 self._createSearchControl();
+                console.log('updateSize');
+                //self.map.updateSize();
+                //self.map.getView().setZoom(6);
                 self._loadOverlayContentTemplate(self.state.model,function(data){
                     self.overlayContent = data;
                 });
             }
-            return $.when();
-        }, 300);
-        return def;
+            return def;
+        }, 1000);*/
+        return this._super();
+    },
+
+    _renderF: function () {
+        console.log('_render');
+        if (this.mapTemplate){
+            this.$el.append(qweb.render(this.mapTemplate.name));
+            return this._super();
+        }
+    	this.$el.append(qweb.render('Empty'));
+        return this._super();
     },
 
     _renderView: function () {
         console.log('_renderView');
 
-        if (this.isInDOM ) {
+        /*if (this.isInDOM ) {
             var self = this;
             setTimeout(function(){
+                console.log('_renderView this.isInDOM', this.isInDOM);
                 self._renderMarkers();
                 self.map.updateSize();
                 self.map.getView().setZoom(6);
             },300);
             return $.when();
+        }*/
+        if(!this.isInDOM){
+            this.isInDOM = true;
+            console.log('render',this.isInDOM);
+            if (this.mapTemplate){
+                this.$el.append(qweb.render(this.mapTemplate.name));
+                return this._super();
+            }
+            this.$el.append(qweb.render('Empty'));
         }
-        if (this.mapTemplate){
-            this.$el.append(qweb.render(this.mapTemplate.name));
-            return $.when();
-        }
-    	this.$el.append(qweb.render('Empty'));
-        return $.when();
+        return this._super();
     },
 
 	_mapSetCenter : function(coord){
@@ -121,9 +173,17 @@ var SolverMapRenderer = AbstractRenderer.extend({
             this.map.getView().setCenter(coord);
         }
 	},
+    renderExtMarkers: function(){
+        this.placemark = new ol.Overlay.Placemark({
+              position:  [0, 0],
+              stopEvent: false
+            });
+            this.map.addOverlay(this.placemark);
+    },
 
     _renderMap: function () {
         if (!this.map) {
+            console.log('!this.map')
               this.map = new ol.Map({
               layers: [
                 new ol.layer.Tile({
@@ -136,27 +196,35 @@ var SolverMapRenderer = AbstractRenderer.extend({
               }),
             });
         }
+        console.log('this.map')
         return this.map;
     },
 
     _renderMarkers: function () {
        var self = this;
        if (!this.icon_layer) {
+            console.log('1')
             this.icon_layer = new ol.layer.Vector({
                 source: new ol.source.Vector({
                 features: [],
-            })
-       });
+                })
+            });
        this.icon_layer.set('name', 'markers');
        this.map.addLayer(this.icon_layer);
        this.map.on('click',self._onMarkerClick.bind(self));
 
        }else if (this.icon_layer.getSource().getFeatures().length > 0){
-
+            console.log('2')
             this.icon_layer.getSource().clear();
        }
-       var iconFeatures = [];
-       var iconStyle = new ol.style.Style({
+/*       var _longitude=this.longitude;
+       var _latitude=this.latitude;
+       console.log("==> ",_longitude,_longitude);
+        _.each(this.state.data, function (item) {
+            console.log("==> ",item.data[_longitude], item.data[_latitude]);
+        })*/
+      var iconFeatures = [];
+      var iconStyle = new ol.style.Style({
                     image: new ol.style.Icon({
                         anchor: [0.3, 23],
                         color: '#23424C',
@@ -166,13 +234,16 @@ var SolverMapRenderer = AbstractRenderer.extend({
                         src: '/sol_ol_map_draw/static/imgs/map-marker.png',
                     }),
                 });
-       var _longitude=this.longitude;
-       var _latitude=this.latitude;
+      var _longitude=this.longitude;
+      var _latitude=this.latitude;
+
        _.each(this.state.data, function (item) {
             if(!item.data){
+                console.log('3')
                 return;
             }
-           if(item.data[_longitude] != 0.0){
+           if( parseInt(item.data[_longitude]) != 0 && parseInt(item.data[_latitude]) != 0){
+                console.log('4')
                 var Feature = new ol.Feature({
                     geometry: new ol.geom.Point(
                     ol.proj.transform([item.data[_longitude], item.data[_latitude]],'EPSG:4326', 'EPSG:3857')
@@ -183,6 +254,7 @@ var SolverMapRenderer = AbstractRenderer.extend({
                 var _relationalFieldsObject = {};
                 var _dataFieldsObject = {};
                 _.each(Object.keys(self.viewInfo.viewFields), function (viewItem) {
+                    console.log('5')
                     var _data = item.data[viewItem];
                     var _flag = 0;
                     var _fieldType = '';
@@ -239,13 +311,16 @@ var SolverMapRenderer = AbstractRenderer.extend({
             }
        });
         if(iconFeatures.length>0){
+            console.log('6')
             var coord = ol.extent.getCenter(iconFeatures[0].getGeometry().getExtent());
             this._mapSetCenter(coord);
         }
-       this.icon_layer.getSource().addFeatures(iconFeatures);
+        console.log('7')
+       this.icon_layer.getSource().addFeatures(iconFeatures);/* */
     },
 
     _onMarkerClick: function (event) {
+        console.log('click on map')
         if(this.map){
             var _feature =0;
             var self = this;
@@ -341,11 +416,14 @@ var SolverMapRenderer = AbstractRenderer.extend({
          var self = this;
         _.each(this.state.data, function (item) {
             if(!item.data){
+                console.log("1");
                 return;
             }
             self._onPopUpCloserClick();
-            if(item.data['map_form']){
-                var feature_object = new ol.format.GeoJSON().readFeatures(item.data['map_form']);
+            var _map_form =self.geofield;
+            if(item.data[_map_form]){
+                console.log("2");
+                var feature_object = new ol.format.GeoJSON().readFeatures(item.data[_map_form]);
                 _.each(feature_object, function (feature) {
                     if(feature){
                          if (feature.get('key_word') != '' && feature.get('key_word')){
@@ -403,11 +481,12 @@ var SolverMapRenderer = AbstractRenderer.extend({
 
 });
 
-var SolverMapModel = AbstractModel.extend({});
+var SolverMapModel = BasicModel.extend({});
 
 
-var SolverMapView = AbstractView.extend(solmap_common.SolMapMixin,{
+var SolverMapView = BasicView.extend(solmap_common.SolMapMixin,{
     accesskey: 'g',
+    display_name:'sol Map',
     icon: 'fa-map-o',
     config: {
         Model: SolverMapModel,
@@ -424,15 +503,17 @@ var SolverMapView = AbstractView.extend(solmap_common.SolMapMixin,{
         this.rendererParams.viewInfo = viewInfo;
         this.rendererParams.latitude = this.arch.attrs.latitude;
         this.rendererParams.longitude = this.arch.attrs.longitude;
+        this.rendererParams.geofield = this.arch.attrs.geofield;
         var self = this;
         this._loadOlMapTemplate('sol.map.manage.overlay',function(data){
             self.rendererParams.mapTemplate = data;
         });
+        console.log('init view');
     },
 
     _loadOlMapTemplate : function(model, callback){
         var self = this;
-        rpc.query({
+        rpc.query({ //ir.ui.view arch_base  active model priority
             model: 'sol.map.manage.overlay',
             method: 'search_read',
             fields: ['name','overlay_template'],
@@ -447,6 +528,13 @@ var SolverMapView = AbstractView.extend(solmap_common.SolMapMixin,{
         });
     },
 
+/*
+if (node.tag === 'button') {
+    return $td.append(this._renderButton(record, node));
+} else if (node.tag === 'widget') {
+    return $td.append(this._renderWidget(record, node));
+}
+*/
 });
 
 viewRegistry.add('solmap', SolverMapView);

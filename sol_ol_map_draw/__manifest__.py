@@ -12,7 +12,7 @@
     'license': 'LGPL-3',
     'price': '100',
     'currency': 'USD',
-    'depends': ['web','base_geolocalize'],
+    'depends': ['web'],
     'data': [
          "views/assets.xml",
          "views/data.xml",
