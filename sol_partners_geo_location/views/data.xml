@@ -13,6 +13,7 @@
                 <field name="map_form"/>
                 <field name="invoice_ids" projection="id,name,display_name,code_rapport"/>
                 <field name="total_invoiced" widget='monetary'/>
+                <field name="currency_id" />
                 <field name="sale_order_ids" projection="id,name,display_name"/>
                 <field name="sale_order_count" />
             </solmap>
