@@ -16,7 +16,7 @@ var solmap_common = require('sol_ol_map_draw.solmap_common');
 var core = require("web.core");
 var qweb = core.qweb;
 var session = require('web.session');
-
+var widgetRegistry = require('web.widget_registry');
 var field_utils = require('web.field_utils');
 var rpc = require('web.rpc');
 
@@ -34,6 +34,7 @@ var SolverMapRenderer = BasicRenderer.extend({
         this.viewInfo = params.viewInfo;
         this.viewFieldsChildrenAttrs = params.arch.children;
         this.viewAttrsArray = [];
+        this.viewAttrsWidget = [];
         this.overlayPopup = null;
         this.container = null;
         this.popupContent = null; //used
@@ -43,7 +44,8 @@ var SolverMapRenderer = BasicRenderer.extend({
         console.log('init');
         this._getFieldAttesArray();
         this.isInDOM=false;
-        //console.log('session',session);
+        console.log('session',session);
+
 
     },
 
@@ -51,14 +53,17 @@ var SolverMapRenderer = BasicRenderer.extend({
         var self = this;
         _.each(this.viewFieldsChildrenAttrs, function (item) {
              if(item.attrs.projection){
-                self.viewAttrsArray[item.attrs.name]=item.attrs.projection;
+                self.viewAttrsArray[item.attrs.name]=item.attrs;
+             }else if(item.attrs.widget){
+                self.viewAttrsWidget[item.attrs.name]=item;
              }
         });
     },
-
+    _getFieldWidget: function(name){
+        return this.viewAttrsWidget[name];
+    },
     _getRelationalFieldProjection: function(name){
-
-        return this.viewAttrsArray[name];
+        return this.viewAttrsArray[name].projection;
     },
 
     _getKeys: function(object){
@@ -167,17 +172,17 @@ var SolverMapRenderer = BasicRenderer.extend({
        }else if (this.icon_layer.getSource().getFeatures().length > 0){
             this.icon_layer.getSource().clear();
        }
-      var iconFeatures = [];
-      var iconStyle = new ol.style.Style({
-                    image: new ol.style.Icon({
-                        anchor: [0.3, 23],
-                        color: '#23424C',
-                        anchorXUnits: 'fraction',
-                        anchorYUnits: 'pixels',
-                        imgSize : [32,32],
-                        src: '/sol_ol_map_draw/static/imgs/map-marker.png',
-                    }),
-                });
+        var iconFeatures = [];
+        var iconStyle = new ol.style.Style({
+            image: new ol.style.Icon({
+                anchor: [0.3, 23],
+                color: '#23424C',
+                anchorXUnits: 'fraction',
+                anchorYUnits: 'pixels',
+                imgSize : [32,32],
+                src: '/sol_ol_map_draw/static/imgs/map-marker.png',
+            }),
+      });
       var _longitude=this.longitude;
       var _latitude=this.latitude;
 
@@ -197,7 +202,6 @@ var SolverMapRenderer = BasicRenderer.extend({
                 var _dataFieldsObject = {};
                 _.each(Object.keys(self.viewInfo.viewFields), function (viewItem) {
                     var _data = item.data[viewItem];
-
                     var _flag = 0;
                     var _fieldType = '';
                     if (typeof _data === 'string'){
@@ -207,16 +211,12 @@ var SolverMapRenderer = BasicRenderer.extend({
                         if (_data >0)
                             _flag=1;
                         if(self.viewInfo.viewFields[viewItem].type==='monetary'){
-                            if(item.data["currency_id"]){
-                                if(item.data["currency_id"].length>1){
-                                    _fieldType = session.get_currency(item.data["currency_id"][0]).symbol;
-                                }
-                            }
+                            _data = field_utils.format.monetary(_data, self._getFieldWidget(viewItem));
                         }
                     }else if(typeof _data === 'object'){
                         if (_data !== null){
                             _flag=0;
-                            if(item.data[viewItem].res_ids.length>0){
+                            if(_data.type === 'list' && _data.res_ids.length>0){//one2many
                                 var projection = self._getRelationalFieldProjection(viewItem);
                                 if (!projection || projection.length===0){
                                     projection = "'id','name','display_name'";
@@ -236,13 +236,16 @@ var SolverMapRenderer = BasicRenderer.extend({
                                     RelationalFields['data'] = result;
                                     _relationalFieldsObject[viewItem]=RelationalFields;
                                 });
+                            }else if(_data.type === 'record' && _data.res_id > 0){ //many2one
+                                _flag=1;
+                                _data = _data.data;
                             }
                         }
                     }
                     if (_flag >0){
                         var dataFields = {
                                 title : self.viewInfo.viewFields[viewItem].string,
-                                data : item.data[viewItem]+' '+_fieldType,
+                                data : _data,
                         };
                         if (viewItem ==='image'){
                             dataFields['src'] = '/web/image?model='+self.state.model+'&id='+item.res_id+'&field=image_small';
