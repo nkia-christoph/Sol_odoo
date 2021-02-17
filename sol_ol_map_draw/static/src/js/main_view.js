@@ -43,7 +43,8 @@ var SolverMapRenderer = BasicRenderer.extend({
         console.log('init');
         this._getFieldAttesArray();
         this.isInDOM=false;
-        //console.log('this.state.data',this.state);
+        //console.log('session',session);
+
     },
 
      _getFieldAttesArray: function(){
@@ -91,74 +92,27 @@ var SolverMapRenderer = BasicRenderer.extend({
     },
 
     on_attach_callback: function () {
-        console.log(' on_attach_callback init view');
         if (this.isInDOM) {
-            console.log('call',this.isInDOM);
             var self = this;
             this._renderMap();
             if(this.map){
                 this._renderMarkers();
                 this._renderPopupOverlay();
                 if(this.geofield){
-                    console.log('this.geofield',this.geofield);
                     this._createSearchControl();
                 }
                 this._loadOverlayContentTemplate(this.state.model,function(data){
                     self.overlayContent = data;
                 });
             }
-          /*  this._renderMarkers();
-            this._renderPopupOverlay();
-            this._createSearchControl();
-            */
         }
-
-        /*setTimeout(function(){
-
-            //console.log(' self._renderMap();', map);
-            if (self.map){
-                console.log('map true');
-                self._renderMarkers();
-                self._renderPopupOverlay();
-                self._createSearchControl();
-                console.log('updateSize');
-                //self.map.updateSize();
-                //self.map.getView().setZoom(6);
-                self._loadOverlayContentTemplate(self.state.model,function(data){
-                    self.overlayContent = data;
-                });
-            }
-            return def;
-        }, 1000);*/
-        return this._super();
-    },
-
-    _renderF: function () {
-        console.log('_render');
-        if (this.mapTemplate){
-            this.$el.append(qweb.render(this.mapTemplate.name));
-            return this._super();
-        }
-    	this.$el.append(qweb.render('Empty'));
         return this._super();
     },
 
     _renderView: function () {
         console.log('_renderView');
-
-        /*if (this.isInDOM ) {
-            var self = this;
-            setTimeout(function(){
-                console.log('_renderView this.isInDOM', this.isInDOM);
-                self._renderMarkers();
-                self.map.updateSize();
-                self.map.getView().setZoom(6);
-            },300);
-            return $.when();
-        }*/
         if(!this.isInDOM){
             this.isInDOM = true;
-            console.log('render',this.isInDOM);
             if (this.mapTemplate){
                 this.$el.append(qweb.render(this.mapTemplate.name));
                 return this._super();
@@ -183,7 +137,6 @@ var SolverMapRenderer = BasicRenderer.extend({
 
     _renderMap: function () {
         if (!this.map) {
-            console.log('!this.map')
               this.map = new ol.Map({
               layers: [
                 new ol.layer.Tile({
@@ -196,14 +149,12 @@ var SolverMapRenderer = BasicRenderer.extend({
               }),
             });
         }
-        console.log('this.map')
         return this.map;
     },
 
     _renderMarkers: function () {
        var self = this;
        if (!this.icon_layer) {
-            console.log('1')
             this.icon_layer = new ol.layer.Vector({
                 source: new ol.source.Vector({
                 features: [],
@@ -214,15 +165,8 @@ var SolverMapRenderer = BasicRenderer.extend({
        this.map.on('click',self._onMarkerClick.bind(self));
 
        }else if (this.icon_layer.getSource().getFeatures().length > 0){
-            console.log('2')
             this.icon_layer.getSource().clear();
        }
-/*       var _longitude=this.longitude;
-       var _latitude=this.latitude;
-       console.log("==> ",_longitude,_longitude);
-        _.each(this.state.data, function (item) {
-            console.log("==> ",item.data[_longitude], item.data[_latitude]);
-        })*/
       var iconFeatures = [];
       var iconStyle = new ol.style.Style({
                     image: new ol.style.Icon({
@@ -239,11 +183,9 @@ var SolverMapRenderer = BasicRenderer.extend({
 
        _.each(this.state.data, function (item) {
             if(!item.data){
-                console.log('3')
                 return;
             }
            if( parseInt(item.data[_longitude]) != 0 && parseInt(item.data[_latitude]) != 0){
-                console.log('4')
                 var Feature = new ol.Feature({
                     geometry: new ol.geom.Point(
                     ol.proj.transform([item.data[_longitude], item.data[_latitude]],'EPSG:4326', 'EPSG:3857')
@@ -254,8 +196,8 @@ var SolverMapRenderer = BasicRenderer.extend({
                 var _relationalFieldsObject = {};
                 var _dataFieldsObject = {};
                 _.each(Object.keys(self.viewInfo.viewFields), function (viewItem) {
-                    console.log('5')
                     var _data = item.data[viewItem];
+
                     var _flag = 0;
                     var _fieldType = '';
                     if (typeof _data === 'string'){
@@ -264,32 +206,37 @@ var SolverMapRenderer = BasicRenderer.extend({
                     }else if(typeof _data === 'number'){
                         if (_data >0)
                             _flag=1;
-                        if(self.viewInfo.viewFields[viewItem].type==='monetary' && item.data["currency_id"].length>1){
-                            _fieldType = session.get_currency(item.data["currency_id"][0]).symbol;
+                        if(self.viewInfo.viewFields[viewItem].type==='monetary'){
+                            if(item.data["currency_id"]){
+                                if(item.data["currency_id"].length>1){
+                                    _fieldType = session.get_currency(item.data["currency_id"][0]).symbol;
+                                }
+                            }
                         }
-                    }else if(Array.isArray(_data)){
-                        if (_data.length>0){
+                    }else if(typeof _data === 'object'){
+                        if (_data !== null){
                             _flag=0;
-                           var projection = self._getRelationalFieldProjection(viewItem);
-                           if (!projection || projection.length===0){
-                                projection = "'id','name','display_name'";
-                           }
-
-                            rpc.query({
-                                model: self.viewInfo.viewFields[viewItem].relation,
-                                method: 'search_read',
-                                fields: projection.split(","),
-                                domain: [['id', 'in', item.data[viewItem]]],
-                            })
-                            .then(function (result) {
-                                var RelationalFields = {
-                                    title : self.viewInfo.viewFields[viewItem].string,
-                                    model : self.viewInfo.viewFields[viewItem].relation,
-                                    ids : item.data[viewItem],
-                                };
-                                RelationalFields['data'] = result;
-                                _relationalFieldsObject[viewItem]=RelationalFields;
-                            });
+                            if(item.data[viewItem].res_ids.length>0){
+                                var projection = self._getRelationalFieldProjection(viewItem);
+                                if (!projection || projection.length===0){
+                                    projection = "'id','name','display_name'";
+                                }
+                                rpc.query({
+                                    model: self.viewInfo.viewFields[viewItem].relation,
+                                    method: 'search_read',
+                                    fields: projection.split(","),
+                                    domain: [['id', 'in', item.data[viewItem].res_ids]],
+                                })
+                                .then(function (result) {
+                                    var RelationalFields = {
+                                        title : self.viewInfo.viewFields[viewItem].string,
+                                        model : self.viewInfo.viewFields[viewItem].relation,
+                                        ids : item.data[viewItem].res_ids,
+                                    };
+                                    RelationalFields['data'] = result;
+                                    _relationalFieldsObject[viewItem]=RelationalFields;
+                                });
+                            }
                         }
                     }
                     if (_flag >0){
@@ -311,16 +258,13 @@ var SolverMapRenderer = BasicRenderer.extend({
             }
        });
         if(iconFeatures.length>0){
-            console.log('6')
             var coord = ol.extent.getCenter(iconFeatures[0].getGeometry().getExtent());
             this._mapSetCenter(coord);
         }
-        console.log('7')
-       this.icon_layer.getSource().addFeatures(iconFeatures);/* */
+       this.icon_layer.getSource().addFeatures(iconFeatures);
     },
 
     _onMarkerClick: function (event) {
-        console.log('click on map')
         if(this.map){
             var _feature =0;
             var self = this;
@@ -416,13 +360,11 @@ var SolverMapRenderer = BasicRenderer.extend({
          var self = this;
         _.each(this.state.data, function (item) {
             if(!item.data){
-                console.log("1");
                 return;
             }
             self._onPopUpCloserClick();
             var _map_form =self.geofield;
             if(item.data[_map_form]){
-                console.log("2");
                 var feature_object = new ol.format.GeoJSON().readFeatures(item.data[_map_form]);
                 _.each(feature_object, function (feature) {
                     if(feature){
