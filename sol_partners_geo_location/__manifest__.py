@@ -10,6 +10,7 @@
     'author': "0Solver0",
     'license': 'LGPL-3',
     'version': '0.1',
+    'website': 'https://addons4.odoo.com/',
     'depends': ['sol_ol_map_draw','contacts','base_geolocalize'],
     'data': [
          "views/data.xml"

@@ -9,9 +9,10 @@
     "category": "Web",
     'author': "0Solver0",
     'version': '0.1',
+    'website': 'https://addons4.odoo.com/',
     'license': 'LGPL-3',
-    'price': '100',
-    'currency': 'USD',
+    # 'price': '100',
+    # 'currency': 'USD',
     'depends': ['web'],
     'data': [
          "views/assets.xml",
