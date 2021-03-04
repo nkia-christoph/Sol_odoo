@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="product_template_hierarchy_form_view">
+            <field name="name">product.template.grouped.form</field>
+            <field name="model">product.template</field>
+            <field name="inherit_id" ref="product.product_template_only_form_view"/>
+            <field name="priority" eval="20"/>
+            <field name="arch" type="xml">
+                <xpath expr="//group[@name='group_general']" position="after">
+                    <group attrs="{'invisible': ['|',('type', 'in', ['consu','product'])]}">
+                        <field name="is_root" widget="radio"/>
+                    </group>
+                    <group attrs="{'invisible': [('is_root','in',['simple'])]}">
+                        <!-- todo : add into the new version colspan="2"-->
+                        <button name="%(sol_action_import_product_to_template)d" class="btn-primary oe_edit_only" style="margin:12px 0px 2px 0px;" invisible="0"
+                                string="Select Product Child" Help="Select Product Child to import"
+                                type="action" attrs="{'invisible':[('is_root', 'in', ['no'])]}"/>
+                        <field name="product_child_ids"
+                               attrs="{'invisible': [('is_root', 'in', ['no'])]}"
+                               widget="many2many_tags"
+                               options="{'no_create_edit': True, 'no_quick_create': True}"/>
+                        <field name="is_auto_inserted"
+                               attrs="{'invisible': [('is_root', '=', 'root')]}"/>
+                        <field name="is_auto_price"
+                               attrs="{'invisible': [('is_root', '=', 'root')]}"/>
+                        <field name="is_shared"
+                               attrs="{'invisible': [('is_root', '=', 'root')]}"/>
+                        <field name="extra_formatting"
+                               attrs="{'invisible': [('is_root', '=', 'root')]}"/>
+                    </group>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>
