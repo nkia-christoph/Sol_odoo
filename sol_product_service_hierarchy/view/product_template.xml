@@ -12,7 +12,6 @@
                         <field name="is_root" widget="radio"/>
                     </group>
                     <group attrs="{'invisible': [('is_root','in',['simple'])]}">
-                        <!-- todo : add into the new version colspan="2"-->
                         <button name="%(sol_action_import_product_to_template)d" class="btn-primary oe_edit_only" style="margin:12px 0px 2px 0px;" invisible="0"
                                 string="Select Product Child" Help="Select Product Child to import"
                                 type="action" attrs="{'invisible':[('is_root', 'in', ['no'])]}"/>
