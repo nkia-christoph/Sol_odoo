@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="sol_report_saleorder_inherit" inherit_id="sale.report_saleorder_document">
+        <xpath expr="//tbody[@class='sale_tbody']//span[@t-field='line.name']" position="replace">
+            <t t-set="product_description" t-value="(line.name).split('\n',1)"/>
+            <t t-if="len(product_description[0]) &gt; 0">
+                <span t-esc="product_description[0]"/>
+            </t>
+            <t t-if="len(product_description) &gt; 1">
+                <t t-foreach="product_description[1].split('\n')" t-as="child">
+                    <br/><small class="text-muted" t-esc="child"/>
+                </t>
+            </t>
+        </xpath>
+    </template>
+</odoo>
