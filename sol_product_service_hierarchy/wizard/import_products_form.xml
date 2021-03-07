@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="sol_view_import_product_to_template" model="ir.ui.view">
+        <field name="name">sol.import.products.to.template.form</field>
+        <field name="model">sol.import.products</field>
+        <field name="arch" type="xml">
+            <form string="Products">
+                <field name="products" />
+                <footer>
+                    <button name="import_child_products" string="Importer" type="object" class="oe_highlight"/>
+                    or
+                    <button string="Cancel" class="oe_link" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="sol_action_import_product_to_template" model="ir.actions.act_window">
+        <field name="name">Import Products</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">sol.import.products</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="sol_view_import_product_to_template"/>
+        <field name="target">new</field>
+    </record>
+
+</odoo>
+
