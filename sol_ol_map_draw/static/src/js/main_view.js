@@ -44,8 +44,6 @@ var SolverMapRenderer = BasicRenderer.extend({
         console.log('init');
         this._getFieldAttesArray();
         this.isInDOM=false;
-        console.log('session',session);
-
 
     },
 
@@ -85,6 +83,8 @@ var SolverMapRenderer = BasicRenderer.extend({
                 qweb.add_template(result[0].overlay_template);
                 callback(result[0]);
             }
+        }).catch(function (e) {
+            console.log('_loadOverlayContentTemplate',e);
         });
     },
 
@@ -116,6 +116,7 @@ var SolverMapRenderer = BasicRenderer.extend({
 
     _renderView: function () {
         console.log('_renderView');
+        this._onPopUpCloserClick();
         if(!this.isInDOM){
             this.isInDOM = true;
             if (this.mapTemplate){
@@ -132,6 +133,7 @@ var SolverMapRenderer = BasicRenderer.extend({
             this.map.getView().setCenter(coord);
         }
 	},
+
     renderExtMarkers: function(){
         this.placemark = new ol.Overlay.Placemark({
               position:  [0, 0],
@@ -235,6 +237,8 @@ var SolverMapRenderer = BasicRenderer.extend({
                                     };
                                     RelationalFields['data'] = result;
                                     _relationalFieldsObject[viewItem]=RelationalFields;
+                                }).catch(function (e) {
+                                    console.log('render marker',e);
                                 });
                             }else if(_data.type === 'record' && _data.res_id > 0){ //many2one
                                 _flag=1;
@@ -247,7 +251,7 @@ var SolverMapRenderer = BasicRenderer.extend({
                                 title : self.viewInfo.viewFields[viewItem].string,
                                 data : _data,
                         };
-                        if (viewItem ==='image_1920'){
+                        if (viewItem.indexOf('image') !== -1 ){ //==='image_1920'
                             dataFields['src'] =window.location.origin + '/web/image?model='+self.state.model+'&id='+item.res_id+'&field='+viewItem;
                         }
                         _dataFieldsObject[viewItem] = dataFields;
@@ -470,6 +474,8 @@ var SolverMapView = BasicView.extend(solmap_common.SolMapMixin,{
                 qweb.add_template(result[0].overlay_template);
                 callback(result[0]);
             }
+        }).catch(function (e) {
+            console.log('_loadOlMapTemplate',e);
         });
     },
 
