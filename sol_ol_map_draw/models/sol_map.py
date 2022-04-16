@@ -13,6 +13,6 @@ class SolMapManageOverlay(models.Model):
                    "model, to display in the map on marker click "
 
     name = fields.Char('Overlay name', translate=True, required=True)
-    model_name = fields.Char('Model Name', translate=True, required=True)
+    model_name = fields.Char('Model Name', required=True)
     overlay_template = fields.Text('Overlay Template', required=True)
-    is_default = fields.Boolean(string="Default", default=False, translate=True)
+    is_default = fields.Boolean(string="Default", default=False)

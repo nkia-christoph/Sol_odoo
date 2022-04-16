@@ -3,7 +3,7 @@
     "category": "sale",
     'author': "0Solver0",
     'license': 'AGPL-3',
-    'version': '13.0',
+    'version': '15.0',
     'summary':"""This module allow user to create a hierarchy of service""",
     'description':""" 
         Features

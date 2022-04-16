@@ -9,7 +9,7 @@
     "category": "sale",
     'author': "0Solver0",
     'license': 'LGPL-3',
-    'version': '13.0',
+    'version': '15.0',
     'website': 'https://addons4.odoo.com/',
     'depends': ['sol_ol_map_draw','sale_management','base_geolocalize'],
     'data': [
